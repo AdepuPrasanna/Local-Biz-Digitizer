@@ -65,4 +65,46 @@ router.post('/setup', authMiddleware, async (req, res) => {
   }
 });
 
+// PUT /api/shop/profile — update profile/settings from Profile page
+router.put('/profile', authMiddleware, async (req, res) => {
+  const { shop_name, owner_name, phone, address } = req.body;
+  if (!shop_name) return res.status(400).json({ error: 'Shop name is required' });
+
+  try {
+    const { data, error } = await supabase
+      .from('shops')
+      .update({ shop_name, owner_name, phone, address })
+      .eq('owner_id', req.user.id)
+      .select()
+      .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ shop: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/shop/duty — owner toggles their own shop's open/closed status
+router.put('/duty', authMiddleware, async (req, res) => {
+  const { duty_status } = req.body;
+  if (!['on_duty', 'off_duty'].includes(duty_status)) {
+    return res.status(400).json({ error: 'duty_status must be on_duty or off_duty' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('shops')
+      .update({ duty_status })
+      .eq('owner_id', req.user.id)
+      .select()
+      .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    res.json({ shop: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

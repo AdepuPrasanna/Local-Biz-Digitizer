@@ -10,6 +10,7 @@ const ocrRoutes = require('./routes/ocr');
 const whatsappRoutes = require('./routes/whatsapp');
 const creditRoutes = require('./routes/credit');
 const dashboardRoutes = require('./routes/dashboard');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/ocr', ocrRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/credit', creditRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ─── 404 handler ──────────────────────────────────────────────
 app.use((req, res) => {

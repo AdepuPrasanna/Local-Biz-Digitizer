@@ -18,7 +18,11 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = (email, password) => supabase.auth.signUp({ email, password });
+  const signUp = (email, password) => supabase.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: window.location.origin + '/' }
+  });
   const signIn = (email, password) => supabase.auth.signInWithPassword({ email, password });
   const signOut = () => supabase.auth.signOut();
 

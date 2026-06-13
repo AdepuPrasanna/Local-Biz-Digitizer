@@ -19,7 +19,7 @@ export default function Register() {
     const { error } = await signUp(form.email, form.password);
     if (error) { toast.error(error.message); setLoading(false); }
     else {
-      toast.success('Account created! Please check your email to confirm, then sign in.');
+      toast.success('Account created! Check your email to confirm — you\'ll be taken straight to shop setup.');
       navigate('/login');
     }
   };

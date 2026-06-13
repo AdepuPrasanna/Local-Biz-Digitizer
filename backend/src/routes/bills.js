@@ -8,6 +8,11 @@ const getShopId = async (userId) => {
   return data?.id;
 };
 
+const getShop = async (userId) => {
+  const { data } = await supabase.from('shops').select('id, shop_name, phone, address').eq('owner_id', userId).single();
+  return data;
+};
+
 // GET /api/bills
 router.get('/', authMiddleware, async (req, res) => {
   try {
@@ -55,10 +60,11 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 
   try {
-    const shopId = await getShopId(req.user.id);
-    if (!shopId) return res.status(404).json({ error: 'Shop not found' });
+    const shop = await getShop(req.user.id);
+    if (!shop) return res.status(404).json({ error: 'Shop not found' });
+    const shopId = shop.id;
 
-    const total_amount = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    const total_amount = items.reduce((sum, item) => sum + ((item.unit_price - (item.discount || 0)) * item.quantity), 0);
 
     // 1. Create the bill
     const { data: bill, error: billError } = await supabase
@@ -83,7 +89,8 @@ router.post('/', authMiddleware, async (req, res) => {
       product_name: item.product_name,
       quantity: item.quantity,
       unit_price: item.unit_price,
-      total_price: item.unit_price * item.quantity,
+      discount: item.discount || 0,
+      total_price: (item.unit_price - (item.discount || 0)) * item.quantity,
     }));
 
     const { error: itemsError } = await supabase.from('bill_items').insert(billItems);
@@ -133,7 +140,7 @@ router.post('/', authMiddleware, async (req, res) => {
       }
     }
 
-    res.status(201).json({ bill: { ...bill, bill_items: billItems }, send_whatsapp: send_whatsapp || false });
+    res.status(201).json({ bill: { ...bill, bill_items: billItems }, shop, send_whatsapp: send_whatsapp || false });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

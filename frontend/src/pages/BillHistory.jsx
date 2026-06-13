@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { FileText, MessageCircle, X, Send } from 'lucide-react';
+import BillReceipt from '../components/BillReceipt';
 
 export default function BillHistory() {
   const [bills, setBills] = useState([]);
@@ -98,33 +99,10 @@ export default function BillHistory() {
               <button onClick={() => setSelected(null)} className="p-1 text-gray-400 rounded-lg"><X size={20} /></button>
             </div>
 
-            <div className="space-y-1 mb-4">
-              <p className="text-sm text-gray-600">Customer: <span className="font-semibold text-gray-900">{selected.customer_name}</span></p>
-              {selected.customer_phone && <p className="text-sm text-gray-600">Phone: <span className="font-semibold">{selected.customer_phone}</span></p>}
-              <p className="text-sm text-gray-600">Date: <span className="font-semibold">{new Date(selected.created_at).toLocaleString('en-IN')}</span></p>
-              <p className="text-sm text-gray-600">Status: <span className={`font-semibold ${selected.paid ? 'text-success-600' : 'text-warning-600'}`}>{selected.paid ? 'Paid' : 'Credit/Pending'}</span></p>
-            </div>
-
-            <div className="border-t border-gray-100 pt-3 mb-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Items</p>
-              {selected.bill_items?.map((item, i) => (
-                <div key={i} className="flex justify-between py-1.5 border-b last:border-0">
-                  <div>
-                    <p className="text-sm text-gray-800">{item.product_name}</p>
-                    <p className="text-xs text-gray-400">x{item.quantity} @ ₹{item.unit_price}</p>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">₹{item.total_price?.toFixed(2)}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-between items-center py-2 border-t border-gray-200 mb-4">
-              <span className="font-bold text-gray-900">Total</span>
-              <span className="text-lg font-bold text-primary-600">₹{selected.total_amount?.toFixed(2)}</span>
-            </div>
+            <BillReceipt bill={selected} />
 
             <button onClick={() => handleResend(selected)} disabled={sending || !selected.customer_phone}
-              className="btn-primary w-full flex items-center justify-center gap-2">
+              className="btn-primary w-full flex items-center justify-center gap-2 mt-4">
               <Send size={16} />
               {sending ? 'Sending...' : selected.whatsapp_sent ? 'Resend WhatsApp Receipt' : 'Send WhatsApp Receipt'}
             </button>
